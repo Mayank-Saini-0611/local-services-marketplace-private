@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { favoriteApi } from '../api/favoriteApi';
 import { useTranslation } from 'react-i18next';
@@ -38,11 +38,12 @@ function Favorites() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
-  useEffect(() => {
-    fetchFavorites();
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
   }, []);
 
-  const fetchFavorites = async () => {
+  const fetchFavorites = useCallback(async () => {
     setLoading(true);
     try {
       const data = await favoriteApi.getAll();
@@ -53,12 +54,15 @@ function Favorites() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+  useEffect(() => {
+    const refreshTimer = window.setTimeout(() => {
+      void fetchFavorites();
+    }, 0);
+
+    return () => window.clearTimeout(refreshTimer);
+  }, [fetchFavorites]);
 
   const handleRemove = async (listingId, e) => {
     e.stopPropagation();

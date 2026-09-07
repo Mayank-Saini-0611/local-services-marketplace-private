@@ -134,8 +134,11 @@ function BrowseServices() {
 
   // Fetch listings whenever filters change
   useEffect(() => {
-    fetchListings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const refreshTimer = window.setTimeout(() => {
+      void fetchListings();
+    }, 0);
+
+    return () => window.clearTimeout(refreshTimer);
   }, [fetchListings]);
 
   // Update URL when filters change

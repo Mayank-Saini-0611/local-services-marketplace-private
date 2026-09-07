@@ -1,15 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { adminApi } from '../api/adminApi';
 import { tokenStorage } from '../utils/tokenStorage';
 import { 
   Users,
   Search, 
-  Filter,
   Mail,
   Phone,
   Calendar,
-  Shield,
-  UserCheck,
   Briefcase,
   Trash2,
   Edit2,
@@ -17,7 +14,6 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
-  ChevronDown,
   Crown,
   User
 } from 'lucide-react';
@@ -35,17 +31,23 @@ function AdminUsers() {
   const [newRole, setNewRole] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const searchRef = useRef(search);
 
   useEffect(() => {
-    fetchUsers();
-  }, [roleFilter]);
+    searchRef.current = search;
+  }, [search]);
 
-  const fetchUsers = async () => {
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  }, []);
+
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await adminApi.getAllUsers({ 
+      const data = await adminApi.getAllUsers({
         role: roleFilter,
-        search: search.trim() || undefined
+        search: searchRef.current.trim() || undefined
       });
       setUsers(data);
     } catch (err) {
@@ -54,12 +56,15 @@ function AdminUsers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [roleFilter, showToast]);
 
-  const showToast = (message, type = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+  useEffect(() => {
+    const refreshTimer = window.setTimeout(() => {
+      void fetchUsers();
+    }, 0);
+
+    return () => window.clearTimeout(refreshTimer);
+  }, [fetchUsers]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

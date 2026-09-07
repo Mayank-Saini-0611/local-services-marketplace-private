@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { listingApi } from '../api/listingApi';
 import { favoriteApi } from '../api/favoriteApi';
@@ -7,7 +7,6 @@ import { tokenStorage } from '../utils/tokenStorage';
 import { reviewApi } from '../api/reviewApi';
 import { chatApi } from '../api/chatApi';
 import { couponApi } from '../api/couponApi';
-import { useTranslation } from 'react-i18next';
 import { 
   ArrowLeft,
   MapPin, 
@@ -28,9 +27,7 @@ import {
   Loader2,
   X,
   Send,
-  AlertCircle,
-  Tag,
-  Briefcase
+  AlertCircle
 } from 'lucide-react';
 
 // Category fallback images
@@ -52,25 +49,10 @@ const getListingImages = (listing) => {
   return [imageMap[listing.categoryName] || 'https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=1200&q=80'];
 };
 
-const getCategoryImage = (categoryName) => {
-  const imageMap = {
-    'Plumber': 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=1200&q=80',
-    'Electrician': 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200&q=80',
-    'Tutor': 'https://images.unsplash.com/photo-1581726707445-75cbe4efc586?w=1200&q=80',
-    'Cleaner': 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1200&q=80',
-    'Carpenter': 'https://images.unsplash.com/photo-1601058268499-e52658b8bb88?w=1200&q=80',
-    'Painter': 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=1200&q=80',
-    'AC Repair': 'https://images.unsplash.com/photo-1631545806609-073f5c39d2b9?w=1200&q=80',
-    'Gardener': 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1200&q=80',
-  };
-  return imageMap[categoryName] || 'https://images.unsplash.com/photo-1556745757-8d76bdb6984b?w=1200&q=80';
-};
-
 function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = tokenStorage.getUser();
-  const { t } = useTranslation();
 
   // Core Data States
   const [listing, setListing] = useState(null);
@@ -110,22 +92,17 @@ function ListingDetail() {
     }
   }, [id]);
 
-  useEffect(() => {
-    fetchListing();
-    window.scrollTo(0, 0);
-  }, [id]);
-
-  const fetchListing = async () => {
+  const fetchListing = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await listingApi.getById(id);
       setListing(data);
-      
+
       try {
-        const similar = await listingApi.getAll({ 
-          categoryId: data.categoryId, 
-          pageSize: 4 
+        const similar = await listingApi.getAll({
+          categoryId: data.categoryId,
+          pageSize: 4
         });
         setSimilarListings((similar.data || []).filter(l => l.id !== data.id).slice(0, 3));
       } catch (e) {
@@ -149,7 +126,16 @@ function ListingDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    const refreshTimer = window.setTimeout(() => {
+      void fetchListing();
+    }, 0);
+    window.scrollTo(0, 0);
+
+    return () => window.clearTimeout(refreshTimer);
+  }, [fetchListing]);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -159,7 +145,7 @@ function ListingDetail() {
           text: listing.description,
           url: window.location.href,
         });
-      } catch (e) {
+      } catch {
         console.log('Share cancelled');
       }
     } else {

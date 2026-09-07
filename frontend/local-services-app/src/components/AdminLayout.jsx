@@ -11,7 +11,6 @@ import {
   LogOut, 
   Bell,
   ChevronDown,
-  Sparkles,
   Menu,
   X,
   Shield,

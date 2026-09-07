@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { providerApi } from '../api/providerApi';
 import { useTranslation } from 'react-i18next';
 import { 
-  ArrowLeft, Star, MapPin, Briefcase, Calendar, 
-  CheckCircle2, Shield, Mail, Phone, Loader2, Frown
+  ArrowLeft, Star, MapPin, Calendar,
+  Shield, Loader2, Frown
 } from 'lucide-react';
 
 const getListingImage = (listing) => {
@@ -34,12 +34,7 @@ function ProviderProfile() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('services'); // 'services' or 'reviews'
 
-  useEffect(() => {
-    fetchData();
-    window.scrollTo(0, 0);
-  }, [id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [profileData, listingsData, reviewsData] = await Promise.all([
@@ -56,7 +51,16 @@ function ProviderProfile() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    const refreshTimer = window.setTimeout(() => {
+      void fetchData();
+    }, 0);
+    window.scrollTo(0, 0);
+
+    return () => window.clearTimeout(refreshTimer);
+  }, [fetchData]);
 
   if (loading) {
     return (

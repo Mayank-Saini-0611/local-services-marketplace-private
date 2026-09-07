@@ -67,6 +67,8 @@ namespace LocalServices.Api.Controllers
                 return Unauthorized(new { message = "Customer not found." });
             var sanitizer = new Ganss.Xss.HtmlSanitizer();
             dto.Message = sanitizer.Sanitize(dto.Message);
+            if (string.IsNullOrWhiteSpace(dto.Message))
+                return BadRequest(new { message = "Message cannot be empty." });
 
             // Create booking
             var newBooking = new Booking

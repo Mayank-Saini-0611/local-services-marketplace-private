@@ -93,7 +93,8 @@ namespace LocalServices.Api.Controllers
                     Role = u.Role,
                     CreatedAt = u.CreatedAt,
                     TotalListings = u.Listings.Count,
-                    TotalBookings = u.Bookings.Count
+                    TotalBookings = u.Bookings.Count,
+                    KycStatus = u.KycStatus
                 })
                 .ToListAsync();
 
@@ -139,6 +140,7 @@ namespace LocalServices.Api.Controllers
                     ProviderId = l.ProviderId,
                     ProviderName = l.Provider!.FullName,
                     ProviderEmail = l.Provider.Email,
+                    ProviderKycStatus = l.Provider.KycStatus,
                     ProviderPhone = l.Provider.Phone,
                     CategoryId = l.CategoryId,
                     CategoryName = l.Category!.Name

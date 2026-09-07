@@ -188,12 +188,14 @@ namespace LocalServices.Api.Controllers
 
             var sanitizer = new Ganss.Xss.HtmlSanitizer();
             var sanitizedContent = sanitizer.Sanitize(dto.Content.Trim());
+            if (string.IsNullOrWhiteSpace(sanitizedContent))
+                return BadRequest(new { message = "Message cannot be empty." });
 
             var message = new ChatMessage
             {
                 RoomId = dto.RoomId,
                 SenderId = userId.Value,
-                Content = dto.Content.Trim(),
+                Content = sanitizedContent,
                 IsRead = false,
                 CreatedAt = DateTime.UtcNow
             };

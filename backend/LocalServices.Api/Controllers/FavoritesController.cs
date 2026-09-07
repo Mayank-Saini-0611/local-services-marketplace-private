@@ -51,6 +51,7 @@ namespace LocalServices.Api.Controllers
                     ProviderId = f.Listing.ProviderId,
                     ProviderName = f.Listing.Provider!.FullName,
                     ProviderEmail = f.Listing.Provider.Email,
+                    ProviderKycStatus = f.Listing.Provider.KycStatus,
                     ProviderPhone = f.Listing.Provider.Phone,
                     CategoryId = f.Listing.CategoryId,
                     CategoryName = f.Listing.Category!.Name

@@ -78,8 +78,9 @@ namespace LocalServices.Api.Controllers
                     IsActive = l.IsActive,
                     CreatedAt = l.CreatedAt,
                     UpdatedAt = l.UpdatedAt,
+                    ProviderKycStatus = l.Provider!.KycStatus,
                     ProviderId = l.ProviderId,
-                    ProviderName = l.Provider!.FullName,
+                    ProviderName = l.Provider.FullName,
                     ProviderEmail = l.Provider.Email,
                     ProviderPhone = l.Provider.Phone,
                     CategoryId = l.CategoryId,
@@ -126,8 +127,11 @@ namespace LocalServices.Api.Controllers
                     Rating = r.Rating,
                     Comment = r.Comment,
                     CreatedAt = r.CreatedAt,
+                    UpdatedAt = r.UpdatedAt,
                     CustomerId = r.CustomerId,
-                    CustomerName = r.Customer!.FullName
+                    CustomerName = r.Customer!.FullName,
+                    ProviderId = r.ProviderId,
+                    ProviderName = r.Provider!.FullName
                 })
                 .ToListAsync();
 
