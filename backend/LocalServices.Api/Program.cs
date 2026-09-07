@@ -42,15 +42,23 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // 2. CORS Policy (Configured for Vite Ports)
+var configuredCorsOrigins = builder.Configuration["CORS_ORIGINS"]?
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+var corsOrigins = configuredCorsOrigins is { Length: > 0 }
+    ? configuredCorsOrigins
+    : new[]
+    {
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175"
+    };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://localhost:5175"
-              )
+        policy.WithOrigins(corsOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
