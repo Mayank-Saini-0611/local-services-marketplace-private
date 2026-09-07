@@ -187,6 +187,28 @@ app.MapGet("/health", async (AppDbContext db) =>
     }
 });
 
+
+
+
+
+app.MapMethods("/api/categories", new[] { "HEAD" }, async (AppDbContext db) =>
+{
+    try
+    {
+        await db.Categories
+            .AsNoTracking()
+            .Select(category => category.Id)
+            .Take(1)
+            .ToListAsync();
+
+        return Results.Ok();
+    }
+    catch
+    {
+        return Results.StatusCode(503);
+    }
+});
+
 // Hubs and Endpoints
 app.MapControllers();
 app.MapHub<NotificationHub>("/notificationHub");
