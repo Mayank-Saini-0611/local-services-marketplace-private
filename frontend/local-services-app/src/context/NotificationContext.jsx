@@ -79,7 +79,7 @@ export function NotificationProvider({ children }) {
 
     // Create SignalR connection
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7020/notificationHub', {
+      .withUrl(`${(import.meta.env.VITE_API_BASE_URL || window.location.origin).replace(/\/api\/?$/, '')}/notificationHub`, {
         accessTokenFactory: () => tokenStorage.getToken(),
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
