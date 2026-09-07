@@ -35,7 +35,7 @@ export function ChatProvider({ children }) {
     }, 0);
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7020/chatHub', {
+      .withUrl(`${(import.meta.env.VITE_API_BASE_URL || window.location.origin).replace(/\/api\/?$/, '')}/chatHub`, {
         accessTokenFactory: () => tokenStorage.getToken(),
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
