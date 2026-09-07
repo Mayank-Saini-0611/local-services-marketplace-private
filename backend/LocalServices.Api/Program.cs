@@ -157,6 +157,36 @@ app.Use(async (context, next) =>
 app.UseAuthentication();
 app.UseAuthorization();
 
+
+
+
+app.MapGet("/health", async (AppDbContext db) =>
+{
+    var connection = db.Database.GetDbConnection();
+
+    try
+    {
+        await connection.OpenAsync();
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1";
+
+        var result = await command.ExecuteScalarAsync();
+
+        return Convert.ToInt32(result) == 1
+            ? Results.Ok(new { status = "ok", database = "ok" })
+            : Results.StatusCode(503);
+    }
+    catch
+    {
+        return Results.StatusCode(503);
+    }
+    finally
+    {
+        await connection.CloseAsync();
+    }
+});
+
 // Hubs and Endpoints
 app.MapControllers();
 app.MapHub<NotificationHub>("/notificationHub");
